@@ -26,19 +26,16 @@ public class MainActivity extends AppCompatActivity {
     private Button setAlarm;
     public static int hour;
     public static int min;
-    private TimeReceiver timeReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Calendar calendar1 = Calendar.getInstance();
-        final int[] day3 = {0};
-        final int year = calendar1.get(Calendar.YEAR);
-        final int month = calendar1.get(Calendar.MONTH);
-        final int day = calendar1.get(Calendar.DAY_OF_MONTH);
+
+        Calendar calendar = Calendar.getInstance();
+        final int yearC = calendar.get(Calendar.YEAR);
+        final int monthC = calendar.get(Calendar.MONTH);
+        final int dayC = calendar.get(Calendar.DAY_OF_MONTH);
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         setAlarm = findViewById(R.id.alarm_button);
@@ -46,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
             DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this,
                     new DatePickerDialog.OnDateSetListener() {
                         @Override
-                        public void onDateSet(DatePicker view, int year, int month, int day1) {
+                        public void onDateSet(DatePicker view, int year, int month, int day) {
 
                             MaterialTimePicker materialTimePicker = new MaterialTimePicker.Builder()
                                     .setTimeFormat(TimeFormat.CLOCK_24H)
@@ -62,8 +59,7 @@ public class MainActivity extends AppCompatActivity {
                                 calendar.set(Calendar.MINUTE, materialTimePicker.getMinute());
                                 calendar.set(Calendar.HOUR_OF_DAY, materialTimePicker.getHour());
 
-
-                                calendar.set(Calendar.DAY_OF_MONTH, day1);
+                                calendar.set(Calendar.DAY_OF_MONTH, day);
                                 hour = materialTimePicker.getHour();
                                 min = materialTimePicker.getMinute();
                                 AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -74,17 +70,11 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "будильник установлен на "+ simpleDateFormat.format(calendar.getTime()), Toast.LENGTH_SHORT).show();
                             });
 
-
                             materialTimePicker.show(getSupportFragmentManager(), "tag_picker");
                         }
-                    }, year, month, day);
+                    }, yearC, monthC, dayC);
             datePickerDialog.show();
-
-
         });
-        timeReceiver = new TimeReceiver();
-
-        registerBroadcastReceiver();
     }
 
     private PendingIntent getAlarmInfoPendingIntent() {
@@ -92,16 +82,11 @@ public class MainActivity extends AppCompatActivity {
         alarmInfointent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         return PendingIntent.getActivity(this, 0, alarmInfointent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
+
     private PendingIntent getAlarmActionPendingIntent() {
         Intent intent = new Intent(this, AlarmActivity.class);
 
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         return PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-    public void registerBroadcastReceiver() {
-        this.registerReceiver(timeReceiver, new IntentFilter(
-                "android.intent.action.TIME_TICK"));
-        Toast.makeText(getApplicationContext(), "Приёмник включен",
-                Toast.LENGTH_SHORT).show();
     }
 }
